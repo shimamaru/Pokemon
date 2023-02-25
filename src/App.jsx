@@ -9,7 +9,8 @@ const App = () => {
   const initialData = "https://pokeapi.co/api/v2/pokemon";
   const [loading, setLoading] = useState(true);
   const [pokemonData, setPokemonData] = useState([]);
-  const [nextUrl, setNextUrl] = useState(null);
+  const [nextUrl, setNextUrl] = useState("");
+  const [prevUrl, setPrevUrl] = useState("");
 
   useEffect(() => {
     const fetchPokemonData = async () => {
@@ -17,6 +18,7 @@ const App = () => {
       const pokemonDetails = await loadPokemon(res.results);
       setPokemonData(pokemonDetails);
       setNextUrl(res.next);
+      setPrevUrl(res.previous);
       setLoading(false);
     };
     fetchPokemonData();
@@ -36,12 +38,22 @@ const App = () => {
     setLoading(true);
     const res = await getAllPokemon(nextUrl);
     const pokemonDetails = await loadPokemon(res.results);
-    setPokemonData(pokemonData.concat(pokemonDetails));
+    setPokemonData(pokemonDetails);
     setNextUrl(res.next);
+    setPrevUrl(res.previous);
     setLoading(false);
   };
 
-  const handlePrevPage = () => {};
+  const handlePrevPage = async () => {
+    if (!prevUrl) return;
+    setLoading(true);
+    const res = await getAllPokemon(prevUrl);
+    const pokemonDetails = await loadPokemon(res.results);
+    setPokemonData(pokemonDetails);
+    setNextUrl(res.next);
+    setPrevUrl(res.previous);
+    setLoading(false);
+  };
 
   return (
     <div className="App">
@@ -57,8 +69,10 @@ const App = () => {
           </div>
         </div>
       )}
-      <button onClick={handlePrevPage}>前へ</button>
-      <button onClick={handleNextPage}>次へ</button>
+      <di className="buttonWrapper">
+        <button onClick={handlePrevPage}>前へ</button>
+        <button onClick={handleNextPage}>次へ</button>
+      </di>
     </div>
   );
 };
